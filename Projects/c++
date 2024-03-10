@@ -1,0 +1,278 @@
+#include <iostream>
+#include <string>
+#include <map>
+#include <limits> // for std::numeric_limits
+
+using namespace std;
+
+namespace CipherUtils {
+
+    class Cipher {
+    private:
+        map<char, string> morseEncryptMap;
+        map<string, char> morseDecryptMap;
+        map<char, string> baconianEncryptMap;
+        map<string, char> baconianDecryptMap;
+        map<char, char> atbashEncryptMap;
+        map<char, char> atbashDecryptMap;
+
+        void InitializeMorseCipher() {
+            // Define mappings for each letter to its Morse code representation
+            morseEncryptMap['A'] = ".-";
+            morseEncryptMap['B'] = "-...";
+            morseEncryptMap['C'] = "-.-.";
+            morseEncryptMap['D'] = "-..";
+            morseEncryptMap['E'] = ".";
+            morseEncryptMap['F'] = "..-.";
+            morseEncryptMap['G'] = "--.";
+            morseEncryptMap['H'] = "....";
+            morseEncryptMap['I'] = "..";
+            morseEncryptMap['J'] = ".---";
+            morseEncryptMap['K'] = "-.-";
+            morseEncryptMap['L'] = ".-..";
+            morseEncryptMap['M'] = "--";
+            morseEncryptMap['N'] = "-.";
+            morseEncryptMap['O'] = "---";
+            morseEncryptMap['P'] = ".--.";
+            morseEncryptMap['Q'] = "--.-";
+            morseEncryptMap['R'] = ".-.";
+            morseEncryptMap['S'] = "...";
+            morseEncryptMap['T'] = "-";
+            morseEncryptMap['U'] = "..-";
+            morseEncryptMap['V'] = "...-";
+            morseEncryptMap['W'] = ".--";
+            morseEncryptMap['X'] = "-..-";
+            morseEncryptMap['Y'] = "-.--";
+            morseEncryptMap['Z'] = "--..";
+
+            // Define mappings for each Morse code representation to its corresponding letter
+            for (auto& pair : morseEncryptMap) {
+                morseDecryptMap[pair.second] = pair.first;
+            }
+        }
+
+        void InitializeBaconianCipher() {
+            // Define mappings for each letter to its Baconian representation
+            baconianEncryptMap['A'] = "AAAAA";
+            baconianEncryptMap['B'] = "AAAAB";
+            baconianEncryptMap['C'] = "AAABA";
+            baconianEncryptMap['D'] = "AAABB";
+            baconianEncryptMap['E'] = "AABAA";
+            baconianEncryptMap['F'] = "AABAB";
+            baconianEncryptMap['G'] = "AABBA";
+            baconianEncryptMap['H'] = "AABBB";
+            baconianEncryptMap['I'] = "ABAAA";
+            baconianEncryptMap['J'] = "ABAAB";
+            baconianEncryptMap['K'] = "ABABA";
+            baconianEncryptMap['L'] = "ABABB";
+            baconianEncryptMap['M'] = "ABBAA";
+            baconianEncryptMap['N'] = "ABBAB";
+            baconianEncryptMap['O'] = "ABBBA";
+            baconianEncryptMap['P'] = "ABBBB";
+            baconianEncryptMap['Q'] = "BAAAA";
+            baconianEncryptMap['R'] = "BAAAB";
+            baconianEncryptMap['S'] = "BAABA";
+            baconianEncryptMap['T'] = "BAABB";
+            baconianEncryptMap['U'] = "BABAA";
+            baconianEncryptMap['V'] = "BABAB";
+            baconianEncryptMap['W'] = "BABBA";
+            baconianEncryptMap['X'] = "BABBB";
+            baconianEncryptMap['Y'] = "BBAAA";
+            baconianEncryptMap['Z'] = "BBAAB";
+
+            // Define mappings for each Baconian representation to its corresponding letter
+            for (auto& pair : baconianEncryptMap) {
+                baconianDecryptMap[pair.second] = pair.first;
+            }
+        }
+
+        void InitializeAtbashCipher() {
+            // Define mappings for each letter to its Atbash counterpart
+            for (char c = 'A'; c <= 'Z'; ++c) {
+                atbashEncryptMap[c] = static_cast<char>('Z' - (c - 'A'));
+            }
+            
+            // Define mappings for each Atbash counterpart to its corresponding letter
+            for (char c = 'A'; c <= 'Z'; ++c) {
+                atbashDecryptMap[atbashEncryptMap[c]] = c;
+            }
+        }
+
+    public:
+        Cipher() {
+            InitializeMorseCipher();
+            InitializeBaconianCipher();
+            InitializeAtbashCipher();
+        }
+
+        string EncryptMorseCipher(const string& text) {
+            string result = "";
+            for (char c : text) {
+                if (isalpha(c)) {
+                    string morse = morseEncryptMap[toupper(c)];
+                    result += morse + "   "; // Add space between letters
+                } else if (c == ' ') {
+                    result += " / "; // Treat spaces as a slash delimiter
+                }
+            }
+            return result;
+        }
+
+        string DecryptMorseCipher(const string& text) {
+            string result = "";
+            string current_code = "";
+            for (char c : text) {
+                if (c == '.' || c == '-') {
+                    current_code += c;
+                } else if (c == ' ' || c == '/') {
+                    if (!current_code.empty()) {
+                        result += morseDecryptMap[current_code];
+                        current_code = "";
+                    }
+                    if (c == '/') {
+                        result += " "; // Add space after slash delimiter
+                    }
+                }
+            }
+            return result;
+        }
+
+        string EncryptBaconianCipher(const string& text) {
+            string result = "";
+            for (char c : text) {
+                if (isalpha(c)) {
+                    result += baconianEncryptMap[toupper(c)] + " "; // Add space between letters
+                } else if (c == ' ') {
+                    result += "/ "; // Treat spaces as a slash delimiter
+                }
+            }
+            return result;
+        }
+
+        string DecryptBaconianCipher(const string& text) {
+            string result = "";
+            string current_code = "";
+            for (char c : text) {
+                if (isalpha(c) || c == 'A' || c == 'B') { // Check for valid Baconian characters
+                    current_code += toupper(c); // Convert to uppercase for consistency
+                    if (current_code.length() == 5) {
+                        result += baconianDecryptMap[current_code]; // Add decrypted character to result
+                        current_code = ""; // Clear current code for next character
+                    }
+                } else if (c == '/' || c == ' ') {
+                    result += " "; // Treat slash and space as delimiter
+                }
+            }
+            return result;
+        }
+
+        string EncryptAtbashCipher(const string& text) {
+            string result = "";
+            for (char c : text) {
+                if (isalpha(c)) {
+                    result += atbashEncryptMap[toupper(c)];
+                } else {
+                    result += c; // Non-alphabetic characters remain unchanged
+                }
+            }
+            return result;
+        }
+
+        string DecryptAtbashCipher(const string& text) {
+            string result = "";
+            for (char c : text) {
+                if (isalpha(c)) {
+                    result += atbashDecryptMap[toupper(c)];
+                } else {
+                    result += c; // Non-alphabetic characters remain unchanged
+                }
+            }
+            return result;
+        }
+    };
+
+    void StartMenu() {
+        int choice;
+        Cipher cipher;
+        int encryptChoice;
+        int decryptChoice;
+        string textToEncrypt;
+        string textToDecrypt;
+
+        do {
+            cout << "Choose an option:\n";
+            cout << "1. Encrypt\n";
+            cout << "2. Decrypt\n";
+            cout << "3. Exit\n";
+            cin >> choice;
+
+            switch (choice) {
+                case 1:
+                    // Encryption options
+                    cout << "Choose encryption method:\n";
+                    cout << "1. Morse Cipher (Dot-Dash)\n";
+                    cout << "2. Baconian Cipher\n";
+                    cout << "3. Atbash Cipher\n";
+                    cin >> encryptChoice;
+
+                    cout << "Enter text to encrypt: ";
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    getline(cin, textToEncrypt);
+
+                    switch (encryptChoice) {
+                        case 1:
+                            cout << "Encrypted text: " << cipher.EncryptMorseCipher(textToEncrypt) << "\n";
+                            break;
+                        case 2:
+                            cout << "Encrypted text: " << cipher.EncryptBaconianCipher(textToEncrypt) << "\n";
+                            break;
+                        case 3:
+                            cout << "Encrypted text: " << cipher.EncryptAtbashCipher(textToEncrypt) << "\n";
+                            break;
+                        default:
+                            cout << "Invalid encryption method choice.\n";
+                    }
+                    break;
+
+                case 2:
+                    // Decryption options
+                    cout << "Choose decryption method:\n";
+                    cout << "1. Morse Cipher (Dot-Dash)\n";
+                    cout << "2. Baconian Cipher\n";
+                    cout << "3. Atbash Cipher\n";
+                    cin >> decryptChoice;
+
+                    cout << "Enter text to decrypt: ";
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    getline(cin, textToDecrypt);
+
+                    switch (decryptChoice) {
+                        case 1:
+                            cout << "Decrypted text: " << cipher.DecryptMorseCipher(textToDecrypt) << "\n";
+                            break;
+                        case 2:
+                            cout << "Decrypted text: " << cipher.DecryptBaconianCipher(textToDecrypt) << "\n";
+                            break;
+                        case 3:
+                            cout << "Decrypted text: " << cipher.DecryptAtbashCipher(textToDecrypt) << "\n";
+                            break;
+                        default:
+                            cout << "Invalid decryption method choice.\n";
+                    }
+                    break;
+
+                case 3:
+                    cout << "Exiting...\n";
+                    break;
+
+                default:
+                    cout << "Invalid choice. Please try again.\n";
+            }
+        } while (choice != 3);
+    }
+}
+
+int main() {
+    CipherUtils::StartMenu();
+    return 0;
+}
