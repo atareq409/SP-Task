@@ -1,6 +1,4 @@
 # Abdallah Tarek Eid (20220482)
-# Mohamed Abo-Obaida Mohamed Othman (20220727)
-# Nour-Eleslam Mohamed Abdallah Mohamed (20231192)
  
 
 #making functions to convert numbers and calling them after inserting the number from the user
